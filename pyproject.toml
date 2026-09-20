@@ -1,0 +1,19 @@
+[project]
+name = "pythonproject"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "asyncmy>=0.2.14",
+    "cryptography>=50.0.1",
+    "elasticsearch[async]>=8,<9",
+    "fastapi[standard]>=0.141.1",
+    "jieba>=0.42.1",
+    "langchain>=1.4.0",
+    "langchain-huggingface>=1.2.2",
+    "langgraph>=1.2.11",
+    "loguru>=0.7.3",
+    "omegaconf>=2.3.1",
+    "pyyaml>=6.0.3",
+    "qdrant-client>=1.19.0",
+    "sqlalchemy>=2.0.52",
+]

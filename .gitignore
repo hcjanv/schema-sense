@@ -1,0 +1,4 @@
+/.venv
+/logs
+/.idea
+/docker/embedding/bge-large-zh-v1.5/
