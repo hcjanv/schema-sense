@@ -16,6 +16,8 @@ services:
     command:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_general_ci
+    mem_limit: 768m
+    cpus: "1"
 
   elasticsearch:
     build: ./elasticsearch
@@ -24,10 +26,14 @@ services:
     environment:
       discovery.type: single-node
       xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
     ports:
       - "9200:9200"
     volumes:
       - es_data:/usr/share/elasticsearch/data
+    mem_limit: 2g
+    cpus: "2"
+
   kibana:
     image: kibana:8.19.10
     container_name: kibana
@@ -35,9 +41,11 @@ services:
     environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
     ports:
-      - "5601:5601"
+      - "15601:5601"
     depends_on:
       - elasticsearch
+    mem_limit: 2g
+    cpus: "1.5"
 
   qdrant:
     image: qdrant/qdrant:v1.16
@@ -48,6 +56,8 @@ services:
       - "6334:6334"   # gRPC
     volumes:
       - qdrant_data:/qdrant/storage
+    mem_limit: 512m
+    cpus: "1"
 
   embedding:
     image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.8
@@ -61,6 +71,8 @@ services:
       MAX_BATCH_TOKENS: "16384"
     volumes:
       - ./embedding/bge-large-zh-v1.5:/models/bge-large-zh-v1.5
+    mem_limit: 2g
+    cpus: "2"
 
 volumes:
   mysql_data:

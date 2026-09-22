@@ -26,7 +26,6 @@ dw_mysql_client_manager = MySQLClientManager(app_config.db_dw)  # ⑦ 全局单�
 
 if __name__ == "__main__":
     dw_mysql_client_manager.init()
-    engine = dw_mysql_client_manager.engine
 
     async def test():
         async with dw_mysql_client_manager.session_factory() as session: # AsyncSession	「一次会话」，真正执行 SQL 的载体
