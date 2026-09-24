@@ -3,15 +3,16 @@ from omegaconf import OmegaConf
 from app.conf.meta_config import MetaConfig
 from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepository
 
-
 class MetaKnowledgeService:
     def __init__(self, meta_mysql_repository: MetaMySQLRepository):
         self.meta_mysql_repository: MetaMySQLRepository = meta_mysql_repository
 
     async def build(self, config_path: Path) -> MetaConfig:
         # 1.读取配置文件
-        context = OmegaConf.load(config_path)
-        schema = OmegaConf.structured(MetaConfig)
+        context = OmegaConf.load(config_path) #读 yaml 成 DictConfig（一个支持点号访问的字典，能 cfg.a.b）
+        schema = OmegaConf.structured(MetaConfig) #把 dataclass 变成"结构定义/schema"，提供默认值 and 类型约束
+        # OmegaConf.merge(schema, context)	schema 打底，用户 yaml 覆盖；类型不对或字段名写错会直接报错
+        # OmegaConf.to_object(...)	把 DictConfig 转成真正的 Python 对象（MetaConfig 实例，内部嵌套 TableConfig/ColumnConfig/MetricConfig）
         meta_config: MetaConfig = OmegaConf.to_object(OmegaConf.merge(schema, context))
 
         print(meta_config.metrics)

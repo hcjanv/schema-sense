@@ -53,7 +53,7 @@ class LLMConfig:
   model_name: str
   api_key: str
   base_url: str
-
+# 装饰器 它自动帮你生成 __init__ / __repr__ / __eq__。也就是你写了个"接口声明"，Python 顺手给了你构造函数
 @dataclass
 class AppConfig:
   logging: LoggingConfig
