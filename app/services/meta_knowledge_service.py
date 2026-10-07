@@ -7,6 +7,7 @@ from omegaconf import OmegaConf
 from app.conf.meta_config import MetaConfig
 from app.entities.column_info import ColumnInfo
 from app.entities.table_info import TableInfo
+from app.entities.value_info import ValueInfo
 from app.repositories.es.value_es_repository import ValueEsRepository
 from app.repositories.mysql.meta.meta_mysql_repository import MetaMySQLRepository
 from app.repositories.mysql.dw.dw_mysql_repository import DWMySQLRepository
@@ -16,12 +17,12 @@ class MetaKnowledgeService:
     def __init__(self,
                  meta_mysql_repository: MetaMySQLRepository,
                  dw_mysql_repository: DWMySQLRepository,
-                 column_qdrant_repositories: ColumnQdrantRepository,
+                 column_qdrant_repository: ColumnQdrantRepository,
                  embedding_client:HuggingFaceEndpointEmbeddings,
                  value_es_repository: ValueEsRepository):
         self.meta_mysql_repository: MetaMySQLRepository = meta_mysql_repository
         self.dw_mysql_repository: DWMySQLRepository = dw_mysql_repository
-        self.column_qdrant_repository: ColumnQdrantRepository = column_qdrant_repositories
+        self.column_qdrant_repository: ColumnQdrantRepository = column_qdrant_repository
         self.embedding_client:HuggingFaceEndpointEmbeddings = embedding_client
         self.value_es_repository: ValueEsRepository = value_es_repository
 
@@ -71,8 +72,8 @@ class MetaKnowledgeService:
             # print(column_infos)
 
             async  with self.meta_mysql_repository.session.begin():
-                self.meta_mysql_repository.save_table_infos(table_infos)
-                self.meta_mysql_repository.save_column_infos(column_infos)
+                await self.meta_mysql_repository.save_table_infos(table_infos)
+                await self.meta_mysql_repository.save_column_infos(column_infos)
 
             # 2.2 对字段信息建立向量索引
             await self.column_qdrant_repository.ensure_collection()
@@ -117,7 +118,20 @@ class MetaKnowledgeService:
             # 2.3 对指定的维度字段取值建立全文索引
             await self.value_es_repository.ensure_index()
 
-            
+            values_infos:list[ValueInfo] = []
+            for table in meta_config.tables:
+                for column in table.columns:
+                    if column.sync:
+                        # 查询字段取值
+                        current_column_values = await self.dw_mysql_repository.get_column_values(table.name, column.name,100000)
+
+                        current_values_infos = [ValueInfo(id=f"{table.name}.{column.name}.{current_column_value}",
+                                   value=current_column_value,column_id=f"{table.name}.{column.name}")
+                         for current_column_value in current_column_values]
+
+                        values_infos.extend(current_values_infos)
+
+            await self.value_es_repository.index(values_infos)
 
         # 根据配置文件同步指定的指标信息
         if meta_config.metrics:

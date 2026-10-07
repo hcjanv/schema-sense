@@ -10,12 +10,12 @@ class MetaMySQLRepository:
     def __init__(self, Session: AsyncSession):
         self.session = Session
 
-    def save_table_infos(self, table_infos: list[TableInfo]):
+    async def save_table_infos(self, table_infos: list[TableInfo]):
         # merge: 主键已存在则更新,不存在则插入,脚本可重复执行
         for table_info in table_infos:
-            self.session.merge(TableInfoMapper.to_model(table_info))
+            await self.session.merge(TableInfoMapper.to_model(table_info))
 
-    def save_column_infos(self, column_infos: list[ColumnInfo]):
+    async def save_column_infos(self, column_infos: list[ColumnInfo]):
         for column_info in column_infos:
-            self.session.merge(ColumnInfoMapper.to_model(column_info))
+            await self.session.merge(ColumnInfoMapper.to_model(column_info))
 
