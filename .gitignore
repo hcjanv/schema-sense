@@ -2,3 +2,8 @@
 /logs
 /.idea
 /docker/embedding/bge-large-zh-v1.5/
+.zcodeignore
+
+# Python 缓存
+__pycache__/
+*.py[cod]

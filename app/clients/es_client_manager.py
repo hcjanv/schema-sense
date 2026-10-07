@@ -25,9 +25,9 @@ if __name__ == '__main__':
 
     async def test():
         # 创建索引
-        await client.indices.create(
-            index="books",
-        )
+        # await client.indices.create(
+        #     index="books",
+        # )
 
         # 写入数据
         await client.index(
